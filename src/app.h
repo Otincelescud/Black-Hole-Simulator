@@ -3,6 +3,7 @@
 
 #include <SDL2/SDL.h>
 #include <iostream>
+#include <vector>
 
 struct App_info {
     // Window properties
@@ -24,9 +25,15 @@ public:
 
 private:
     SDL_Window* window = nullptr;
-    SDL_Renderer* renderer = nullptr;
+    SDL_Surface* winSurf = nullptr;
     App_info* appInfo = nullptr;
     bool running = false;
+    std::vector<SDL_Surface*> surfaces;
+
+    void update_pixels_on_winSurf(SDL_Surface* winSurf, Uint32 (*updateFunc)(int x, int y, App_info* appInfo));
 };
 
 #endif // App_h
+
+// mouser
+// jlcpcb
