@@ -85,7 +85,16 @@ std::ostream& operator<<(std::ostream& os, const VectorN<T, N>& vec) {
 
 template class VectorN<float, 2>;
 template class VectorN<float, 3>;
+
+template class VectorN<int, 2>;
+template class VectorN<int, 3>;
+
 template VectorN<float, 2> operator*(float scalar, const VectorN<float, 2>& vec);
 template VectorN<float, 3> operator*(float scalar, const VectorN<float, 3>& vec);
 template std::ostream& operator<<(std::ostream& os, const VectorN<float, 2>& vec);
 template std::ostream& operator<<(std::ostream& os, const VectorN<float, 3>& vec);
+
+template VectorN<int, 2> operator*(int scalar, const VectorN<int, 2>& vec);
+template VectorN<int, 3> operator*(int scalar, const VectorN<int, 3>& vec);
+template std::ostream& operator<<(std::ostream& os, const VectorN<int, 2>& vec);
+template std::ostream& operator<<(std::ostream& os, const VectorN<int, 3>& vec);
