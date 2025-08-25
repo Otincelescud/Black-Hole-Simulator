@@ -36,7 +36,26 @@ App::~App() {
 }
 
 void App::init() {
-    // init stuff if needed
+    add_to_surfaces("assets/3.png");
+    add_to_surfaces("assets/2.png");
+    // Initialize other resources if needed
+}
+
+void App::add_to_surfaces(const char* filepath) {
+    appInfo->surfaces.push_back(loadImage(filepath));
+    if (!appInfo->surfaces.back()) {
+        std::cerr << "Failed to load image!" << std::endl;
+    }
+}
+
+void App::remove_from_surfaces(std::size_t index) {
+    if (index < appInfo->surfaces.size()) {
+        unloadImage(appInfo->surfaces[index]);
+        appInfo->surfaces.erase(appInfo->surfaces.begin() + index);
+    }
+    else {
+        std::cerr << "Index out of bounds when trying to remove surface." << std::endl;
+    }
 }
 
 void App::handle_events() {
@@ -45,14 +64,22 @@ void App::handle_events() {
         if (event.type == SDL_QUIT) {
             running = false;
         }
-        else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
-            running = false;
+        else if (event.type == SDL_KEYDOWN) {
+            if (event.key.keysym.sym == SDLK_ESCAPE) running = false;
+            else if (event.key.keysym.sym == SDLK_RIGHT) {
+                appInfo->index = (appInfo->index + 1) % appInfo->surfaces.size();
+                //std::cout << "Switched to image index: " << appInfo->index << std::endl;
+            }
+            else if (event.key.keysym.sym == SDLK_LEFT) {
+                appInfo->index = (appInfo->index - 1 + appInfo->surfaces.size()) % appInfo->surfaces.size();
+                //std::cout << "Switched to image index: " << appInfo->index << std::endl;
+            }
         }
         // Handle other events here
     }
 }
 
-bool App::is_running() const {
+bool App::is_running() {
     return running;
 }
 
@@ -61,19 +88,31 @@ void App::update() {
 }
 
 void App::cleanup() {
-    // Cleanup resources if needed
+    for (auto surface : appInfo->surfaces) {
+        unloadImage(surface);
+    }
+    appInfo->surfaces.clear();
+}
+
+Uint32 render_test_img(const VectorN<int, 2>& px_pos, App_info* appInfo) {
+    return getPixel(appInfo->surfaces[appInfo->index], px_pos, false);    
 }
 
 void App::render() {
-    update_pixels_on_winSurf(winSurf, [](int x, int y, App_info* appInfo) -> Uint32 {return 0x000000AA;}); // Example update function that fills the surface with black color
-    SDL_UpdateWindowSurface(window);
-    SDL_Delay(16); // Simulate frame delay (60 FPS)
+    update_pixels_on_winSurf(render_test_img);
+    //SDL_Delay(16); // Simulate frame delay (60 FPS)
     if (!running) {std::cout << "Application is stopping." << std::endl;}  
 }
 
-void App::update_pixels_on_winSurf(SDL_Surface* winSurf, Uint32 (*updateFunc)(int x, int y, App_info* appInfo)) {
+void App::update_pixels_on_winSurf(Uint32 (*updateFunc)(const VectorN<int, 2>& pos, App_info* appInfo)) {
+    
     if (!winSurf) {
         std::cerr << "Window surface is null!" << std::endl;
+        return;
+    }
+
+    if (winSurf->format->BytesPerPixel != 4) {
+        std::cerr << " Window Surface must be 32bpp!" << std::endl;
         return;
     }
 
@@ -83,11 +122,15 @@ void App::update_pixels_on_winSurf(SDL_Surface* winSurf, Uint32 (*updateFunc)(in
         return;
     }
 
+    VectorN<int, 2> p{0, 0};
+    int& x = p[0];
+    int& y = p[1];
+
     // Update pixels using the provided function
     Uint32* pixels = static_cast<Uint32*>(winSurf->pixels);
-    for (int y = 0; y < winSurf->h; ++y) {
-        for (int x = 0; x < winSurf->w; ++x) {
-            pixels[y * winSurf->w + x] = updateFunc(x, y, appInfo);
+    for (y = 0; y < winSurf->h; ++y) {
+        for (x = 0; x < winSurf->w; ++x) {
+            pixels[y * winSurf->w + x] = updateFunc(p, appInfo);
         }
     }
 

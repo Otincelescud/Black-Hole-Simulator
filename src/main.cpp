@@ -1,9 +1,8 @@
 #include <SDL2/SDL.h>
-#include <iostream>
+#include <SDL2/SDL_image.h>
 #include "app.h"
 
 int main(int argc, char* argv[]) {
-
     App* app = new App(800, 800, "Black Hole Simulator", false);
     app->init();
 
