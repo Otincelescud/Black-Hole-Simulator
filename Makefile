@@ -1,8 +1,8 @@
 # Compilers
 CC      := gcc
 CXX     := g++
-CFLAGS  := -Wall -Wextra -O2 $(shell sdl2-config --cflags)
-CXXFLAGS:= -Wall -Wextra -O2 $(shell sdl2-config --cflags)
+CFLAGS  := -g $(shell sdl2-config --cflags)
+CXXFLAGS:= -g $(shell sdl2-config --cflags)
 LDFLAGS := $(shell sdl2-config --libs) -lSDL2_image
 
 # Directories
